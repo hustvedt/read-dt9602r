@@ -3,10 +3,17 @@
 This gem can connect to a DT9602R multimeter over the serial port, and logs the data to a CSV file. All of the modes
 and attributes of the DT9602R are supported.
 
+
+Usage:
+
+`read-dt9602r [Serial port]`
+
+The default serial port is /dev/ttyUSB0
+
 The default CSV output is:
 
----------------------------
 |Row|Value Example|Meaning|
+|---|-------------|-------|
 |0|12345678.0|The floating point unix time|
 |1|0.00|The main value as displayed on the meter|
 |2|M|The SI Prefix|
@@ -29,10 +36,10 @@ The default CSV output is:
 The DT9602R sends out a 14-byte packet, terminated with a windows line ending (CRLF).
 
 
---------------
 |Byte|Meaning|
+|----|-------|
 |0|Sign ('+' or '-')
-|1-4|Number
+|1-4|Number, 3 characters in ASCII
 |5|Literal space ' '
 |6|Precision
 |7-8|Mode bit flags
@@ -43,39 +50,41 @@ The DT9602R sends out a 14-byte packet, terminated with a windows line ending (C
 
 ### Byte 6: Precision
 
----------------------
-|80|40|20|10|8|4|2|1|
-|  |  |  |  |* 0.1| * 0.01| * 0.001|
+Multiply the number by this amount: 
+
+|0x80|0x40|0x20|0x10|0x8|  0x4|  0x2|   0x1|
+|----|----|----|----|---| ----|-----|------|
+|    |    |    |        |  0.1| 0.01| 0.001|
 
 ### Byte 7: Modes
 
----------------------
-|80|40|20|10|8|4|2|1|
-|Unknown|Delta|Auto-ranging|DC|AC|Delta mode|Hold|Ground-reference?|
+|   0x80| 0x40|        0x20|0x10|0x8|       0x4|0x2 |              0x1|
+|-------|-----|------------|----|---|----------|----|-----------------|
+|Unknown|Delta|Auto-ranging|  DC| AC|Delta mode|Hold|Ground-reference?|
 
 
 
 ### Byte 8: Modes
 
 
----------------------
-|80|40|20|10|8|4|2|1|
-|Unknown|Unknown|Max|Min|Low Battery|Unknown|Unknown|Capacitor|Unwnown|
+|   0x80|   0x40|0x20|0x10|        0x8|    0x4|      0x2|    0x1|
+|-------|-------|----|----|-----------|-------|---------|-------|
+|Unknown|Unknown| Max| Min|Low Battery|Unknown|Capacitor|Unknown|
 
 ### Byte 9: SI Prefix
 
 
----------------------
-|80|40|20|10|8|4|2|1|
-|&mu;|m|k|M|||||
+|0x80|0x40|0x20|0x10|0x8|0x4|0x2|0x1|
+|----|----|----|----|---|---|---|---|
+|&mu;|   m|   k|   M|   |   |   |   |
 
 
 ### Byte 10: Unit
 
 
----------------------
-|80|40|20|10|8|4|2|1|
-|Volts|Amps|Ohms|Unknown|Hz|Farads (Prefix is wrong)|Celsius|Fahrenheit|
+| 0x80|0x40|0x20|   0x10|0x8|0x4                     |0x2    |0x1       |
+|-----|----|----|-------|---|------------------------|-------|----------|
+|Volts|Amps|Ohms|Unknown| Hz|Farads (Prefix is wrong)|Celsius|Fahrenheit|
 
 
 
