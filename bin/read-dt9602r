@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require 'read-dt9602r'
+require_relative '../lib/read-dt9602r'
 
-port = ARGV[1]
+port = ARGV[0]
 port ||= '/dev/ttyUSB0'
 
 serial = DT9602R_Serial.new
@@ -11,4 +11,5 @@ serial.read(port) do |row|
   row.insert(0, Time.now.to_f)
 
   puts row.join(', ')
+  STDOUT.flush
 end

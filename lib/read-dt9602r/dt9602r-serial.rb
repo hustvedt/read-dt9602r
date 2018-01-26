@@ -1,7 +1,7 @@
 require 'rubyserial'
 class DT9602R_Serial
   def read(serial_port, &block)
-    sp = Serial.new(serial_port, 2400, 8)
+    sp = Serial.new(serial_port, 2400, 8, vmin: 1)
 
     data = []
     loop do
